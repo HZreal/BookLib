@@ -182,9 +182,13 @@ REST_FRAMEWORK = {
     'PAGE_SIZE': 100,                  # 每页数目
 
     # 全局异常处理
-    # 'EXCEPTION_HANDLER': 'rest_framework.views.exception_handler',                 # 默认
+    # 'EXCEPTION_HANDLER': 'rest_framework.views.exception_handler',                     # 默认
     'EXCEPTION_HANDLER': 'my_project.my_app.utils.custom_db_exception_handler',          # 声明自定义的异常处理
 
-
+    # 自定义渲染器，返回指定格式的JSON数据  
+    'DEFAULT_RENDERER_CLASSES': (
+        'BookLib.utils.customDRFRenderer',
+        'rest_framework.renderers.BrowsableAPIRenderer',
+    ),
 }
 '''

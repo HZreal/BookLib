@@ -3,6 +3,7 @@ from django.http import JsonResponse, HttpResponse
 import json
 from django.views import View
 from rest_framework.decorators import action
+from rest_framework.renderers import JSONRenderer
 
 from book.models import BookInfo
 from book.serializer import BookInfoSerializer, PersonInfoSerializer
@@ -231,6 +232,10 @@ class BookGenericAPIView(GenericAPIView):
         s.save()
         # 返回
         return Response(s.data)
+
+        # render函数为drf中JSON渲染器类JSONRenderer的渲染方法
+        # 可自定义渲染器返回指定json格式(符合restful)，只需继承JSONRenderer类并重写render方法
+        # return HttpResponse(JSONRenderer().render(s.data), content_type="application/json")
 
     def put(self, request, pk):
         # 获取前端数据
