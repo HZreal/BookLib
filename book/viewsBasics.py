@@ -1,13 +1,14 @@
+import json
+from datetime import datetime
 from django import http
 from django.http import JsonResponse, HttpResponse
-import json
 from django.views import View
-from rest_framework.decorators import action
-from rest_framework.renderers import JSONRenderer
-
 from book.models import BookInfo
 from book.serializer import BookInfoSerializer, PersonInfoSerializer
-from datetime import datetime
+
+from rest_framework.authtoken.models import Token
+from rest_framework.decorators import action
+from rest_framework.renderers import JSONRenderer
 from rest_framework.response import Response
 from rest_framework.generics import GenericAPIView, ListAPIView, ListCreateAPIView, RetrieveUpdateDestroyAPIView
 from rest_framework.mixins import ListModelMixin, RetrieveModelMixin, CreateModelMixin, UpdateModelMixin, DestroyModelMixin
@@ -412,9 +413,7 @@ class BooksAPIView(APIView):
         新增图书
         路由：POST /books/
         """
-        json_bytes = request.body
-        json_str = json_bytes.decode()
-        book_dict = json.loads(json_str)
+        book_dict = json.loads(request.body.decode())
 
         # 此处详细的校验参数省略
 
@@ -673,4 +672,7 @@ class BookInfoViewSet(ListModelMixin, RetrieveModelMixin, GenericViewSet):
     read:
     修改图书的阅读量
     """
+
+
+
 

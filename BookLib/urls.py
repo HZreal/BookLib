@@ -20,8 +20,7 @@ from rest_framework.documentation import include_docs_urls
 urlpatterns = [
     path('admin/', admin.site.urls),
 
-    path('', include('book.urls')),
-    path('', include('books.urls')),
+    path('book/', include('book.urls')),
 
 
     # 总路由中添加接口文档路径

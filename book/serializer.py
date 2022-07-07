@@ -1,14 +1,15 @@
-from models import BookInfo, PersonInfo
+from book.models import BookInfo, PersonInfo
 from rest_framework import serializers
 
 
 # 定义嵌套序列化器，需在被嵌套的之前
 class PersonInfoSerializer(serializers.Serializer):
-    name = serializers.CharField(max_length=20, label='姓名', unique=True)
-    description = serializers.CharField(max_length=200, null=True, label='描述')
+    name = serializers.CharField(max_length=20, label='姓名')
+    description = serializers.CharField(max_length=200, label='描述')
 
-    book_id = serializers.PrimaryKeyRelatedField()
+    # book_id = serializers.PrimaryKeyRelatedField()
     # book_id = serializers.StringRelatedField()
+
 
 # 定义一般形式序列化器：自定义序列化器需要将好多字段在序列化器中定义
 class BookInfoSerializer1(serializers.Serializer):
@@ -56,7 +57,6 @@ class BookInfoSerializer1(serializers.Serializer):
 
 # 模型类序列化器：直接继承序列化器类Serializers
 class BookInfoSerializer(serializers.ModelSerializer):
-
     # 显示修改指明字段的选项参数
     # read_count = serializers.IntegerField(max_value=100, min_value=5, required=False, label='阅读量')
 
@@ -69,7 +69,7 @@ class BookInfoSerializer(serializers.ModelSerializer):
 
         # fields 指明为模型类的哪些字段生成
         # fields = ('id', 'name', 'pub_date', sms_code)
-        field = '__all__'               # 声明sms_code
+        field = '__all__'  # 声明sms_code
         # 可以明确排除掉哪些字段
         exclude = ('image',)
 
@@ -92,6 +92,6 @@ class BookInfoSerializer(serializers.ModelSerializer):
     def validate(self, attrs):
         pass
 
-
-
     # 内部封装了create, update方法
+
+

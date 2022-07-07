@@ -9,7 +9,7 @@ https://docs.djangoproject.com/en/3.2/topics/settings/
 For the full list of settings and their values, see
 https://docs.djangoproject.com/en/3.2/ref/settings/
 """
-
+import datetime
 from pathlib import Path
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
@@ -40,8 +40,8 @@ INSTALLED_APPS = [
     'book',
     # 'corsheaders',
     'rest_framework',
-    'books',
-    'django_filters',
+    'rest_framework.authtoken'        # DRF token   内含Token模型类，需要迁移
+    # 'django_filters',
 
 ]
 
@@ -50,7 +50,7 @@ MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
-    'django.middleware.csrf.CsrfViewMiddleware',
+    # 'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
@@ -84,14 +84,17 @@ WSGI_APPLICATION = 'BookLib.wsgi.application'
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
-        # 'ENGINE': 'django.db.backends.mysql',
+        # 'ENGINE': 'django.db.backends.sqlite3',
+        # 'NAME': BASE_DIR / 'db.sqlite3',
+        'ENGINE': 'django.db.backends.mysql',
         # 'HOST': '192.168.94.131',
-        # 'PORT': '3306',
+        'HOST': '127.0.0.1',
+        'PORT': '3306',
         # 'USER': 'huangzhen',
+        'USER': 'root',
         # 'PASSWORD': 'root',
-        # 'NAME': 'bookmanage',
+        'PASSWORD': 'root123456',
+        'NAME': 'bookmanage',
     }
 }
 
@@ -140,37 +143,49 @@ STATIC_URL = '/static/'
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 
+# 指定自定义认证后端
+AUTHENTICATION_BACKENDS = [
+    'book.auth.backends.CustomAuthBackend',
+    'django.contrib.auth.backends.ModelBackend',
+]
+
+AUTH_USER_MODEL = 'book.User'
+
 # 全局配置，对所有DRF视图均有效
-'''
 REST_FRAMEWORK = {
     # Use Django's standard `django.contrib.auth` permissions,
     # or allow read-only access for unauthenticated users.
-    'DEFAULT_PERMISSION_CLASSES': [
-        'rest_framework.permissions.DjangoModelPermissionsOrAnonReadOnly',
-        # 认证
-        'rest_framework.authentication.BasicAuthentication',                    # 基本认证
-        'rest_framework.authentication.SessionAuthentication',                  # session认证
-        # 权限
-        'rest_framework.permissions.IsAuthenticated',
-    ],
-
+    # 'DEFAULT_PERMISSION_CLASSES': [
+    #     'rest_framework.permissions.DjangoModelPermissionsOrAnonReadOnly',
+    #     # 认证
+    #     'rest_framework.authentication.BasicAuthentication',                    # 基本认证
+    #     'rest_framework.authentication.SessionAuthentication',                  # session认证
+    #     # 权限
+    #     'rest_framework.permissions.IsAuthenticated',
+    # ],
+    'DEFAULT_AUTHENTICATION_CLASSES': (
+        # 'rest_framework_jwt.authentication.JSONWebTokenAuthentication',        # DRF JWT
+        'rest_framework.authentication.BasicAuthentication',
+        'rest_framework.authentication.SessionAuthentication',                  # 前两个用来生成 Token
+        'rest_framework.authentication.TokenAuthentication',                    # DRF auth Token
+    ),
     # 用户限流
-    'DEFAULT_THROTTLE_CLASSES': (
-        'rest_framework.throttling.AnonRateThrottle',
-        'rest_framework.throttling.UserRateThrottle',
-    ),
-    'DEFAULT_THROTTLE_RATES': {       # 指定限流次数
-        'anon': '100/day',
-        'user': '1000/day',
-    },
+    # 'DEFAULT_THROTTLE_CLASSES': (
+    #     'rest_framework.throttling.AnonRateThrottle',
+    #     'rest_framework.throttling.UserRateThrottle',
+    # ),
+    # 'DEFAULT_THROTTLE_RATES': {       # 指定限流次数
+    #     'anon': '100/day',
+    #     'user': '1000/day',
+    # },
     # 视图限流
-    'DEFAULT_THROTTLE_CLASSES': (
-        'rest_framework.throttling.ScopedRateThrottle',
-    ),
-    'DEFAULT_THROTTLE_RATES': {
-        'contacts': '50/day',
-        'uploads': '2000/day',
-    },
+    # 'DEFAULT_THROTTLE_CLASSES': (
+    #     'rest_framework.throttling.ScopedRateThrottle',
+    # ),
+    # 'DEFAULT_THROTTLE_RATES': {
+    #     'contacts': '50/day',
+    #     'uploads': '2000/day',
+    # },
     
     # 过滤
     'DEFAULT_FILTER_BACKENDS': (
@@ -178,17 +193,21 @@ REST_FRAMEWORK = {
     ),
 
     # 分页
-    'DEFAULT_PAGINATION_CLASS':  'rest_framework.pagination.PageNumberPagination',
-    'PAGE_SIZE': 100,                  # 每页数目
+    # 'DEFAULT_PAGINATION_CLASS':  'rest_framework.pagination.PageNumberPagination',
+    # 'PAGE_SIZE': 100,                  # 每页数目
 
     # 全局异常处理
     # 'EXCEPTION_HANDLER': 'rest_framework.views.exception_handler',                     # 默认
-    'EXCEPTION_HANDLER': 'my_project.my_app.utils.custom_db_exception_handler',          # 声明自定义的异常处理
+    # 'EXCEPTION_HANDLER': 'my_project.my_app.utils.custom_db_exception_handler',          # 声明自定义的异常处理
 
     # 自定义渲染器，返回指定格式的JSON数据  
-    'DEFAULT_RENDERER_CLASSES': (
-        'BookLib.utils.customDRFRenderer',
-        'rest_framework.renderers.BrowsableAPIRenderer',
-    ),
+    # 'DEFAULT_RENDERER_CLASSES': (
+    #     'BookLib.utils.customDRFRenderer',
+    #     'rest_framework.renderers.BrowsableAPIRenderer',
+    # ),
 }
-'''
+JWT_AUTH = {
+  'jwt_EXPIRATION_DELTA': datetime.timedelta(days=7),
+  'JWT_AUTH_HEADER_PREFIX': 'JWT',
+}
+

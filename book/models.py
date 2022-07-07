@@ -1,5 +1,8 @@
 from django.db import models
-from rest_framework import serializers
+from django.contrib.auth.models import AbstractUser
+from django.db.models.signals import post_save
+from django.dispatch import receiver
+from rest_framework.authtoken.models import Token
 
 
 class BookInfo(models.Model):
@@ -34,6 +37,28 @@ class PersonInfo(models.Model):
 
     def __str__(self):
         return self.name
+
+
+class User(AbstractUser):
+    is_delete = models.BooleanField(null=True, blank=True, verbose_name='是否删除')
+
+    class Meta:
+        db_table = 'tb_user'
+
+
+# TODO If you want every user to have an automatically generated Token, you can simply catch the User's post_save signal.
+# @receiver(post_save, sender=settings.AUTH_USER_MODEL)
+@receiver(post_save, sender=User)
+def create_auth_token(sender, instance=None, created=False, **kwargs):
+    if created:
+        Token.objects.create(user=instance)
+
+    # 返回token模型类对象
+    # token = Token.objects.filter(user=instance).first()
+    # if token is not None:
+    #     return token
+    # else:
+    #     return Token.objects.create(user=instance)
 
 
 
